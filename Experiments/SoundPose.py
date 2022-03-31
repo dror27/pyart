@@ -44,8 +44,18 @@ lfo4 = Sine(0.1).range(0.1, 0.75)
 osc4 = SuperSaw(freq=scale1[0].frequency(), detune=lfo4, mul=tr2*0.3).out(1)
 lfo5 = Sine(0.1888).range(0.1, 0.75)
 osc5 = SuperSaw(freq=scale2[0].frequency(), detune=lfo5, mul=tr2*0.3).out(2)
-sf = SfPlayer("kick-02.wav", speed=1, loop=True, mul=0.5).out()
+sf = SfPlayer("kick-02.wav", speed=1, loop=False, mul=0.5).out()
 
+
+beat_id = 1
+beat_factor = 1
+def beat_event():
+    global beat_id
+    if (beat_id % (16 / beat_factor)) == 1:
+        sf.out()
+    beat_id = beat_id + 1
+
+pat = Pattern(function=beat_event, time=0.1).play()
 
 # define motion processors
 def y_note(y, scale):
@@ -56,6 +66,8 @@ def process_landmark(landmark):
 
     y1 = landmark[19].y
     y2 = landmark[20].y
+    x1 = landmark[19].x
+    x2 = landmark[20].x
 
     n1 = y_note(y1, scale1)
     n2 = y_note(y2, scale2)
@@ -63,7 +75,16 @@ def process_landmark(landmark):
     osc4.setFreq(n1.frequency())
     osc5.setFreq(n2.frequency())
 
-    return {"n1":note_info(n1), "n2":note_info(n2)}
+    global beat_factor
+    beat_factor = 2
+
+    return {
+        "n1": note_info(n1), 
+        "n2": note_info(n2),
+        "x1": str(landmark[19].x),
+        "x2": str(landmark[20].x),
+        "bf": str(beat_factor),
+        }
     
 def note_info(note):
     return "%s %.1f" % (note.scientific_notation(), note.frequency()) 
