@@ -6,6 +6,7 @@ import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
+frame_id = 0
 
 # capture frames loop
 def capture(args, process_landmarks):
@@ -33,8 +34,10 @@ def capture(args, process_landmarks):
 
         # process landmarks
         if results.pose_landmarks:
-            info = process_landmarks(results.pose_landmarks.landmark)
-        
+            newInfo = process_landmarks(results.pose_landmarks.landmark)
+            if newInfo:
+                info = newInfo
+
         # Draw the pose annotation on the image.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -59,6 +62,10 @@ def capture(args, process_landmarks):
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(5) & 0xFF == 27:
           break
+
+        # update frame id
+        global frame_id
+        frame_id += 1
     cap.release()
 
 
