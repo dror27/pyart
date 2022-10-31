@@ -18,6 +18,14 @@ parser.add_argument("--list-scales", help="list all available scales",
                     action="store_true")
 parser.add_argument("--add-beat", help="add a base drum beat",
                     action="store_true")
+parser.add_argument("--bpm", help="beats per minute",
+                    type=int, default=120)
+parser.add_argument("--beat-pattern", help="bitwise beat pattern",
+                    type=int, default=1)
+parser.add_argument("--note-left", help="lower note on left",
+                    default="A2")
+parser.add_argument("--note-right", help="lower note on left",
+                    default="A3")
 args = parser.parse_args()
 
 # print scales?

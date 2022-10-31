@@ -25,25 +25,27 @@ def start(args):
     add_beat = args.add_beat
 
     # some global setup
-    global s, osc4, osc5, scale1, scale2, beat, beat_id, beat_factor, sf, pat
+    global s, osc4, osc5, scale1, scale2, beat, beat_id, beat_pattern, sf, pat
     global t, tr2, lfo4, lfo5
-    scale1 = multi_octave_scale(musthe.Note('A2'), args.scale, 2)
-    scale2 = multi_octave_scale(musthe.Note('A3'), args.scale, 2)
+    scale1 = multi_octave_scale(musthe.Note(args.note_left), args.scale, 2)
+    scale2 = multi_octave_scale(musthe.Note(args.note_right), args.scale, 2)
     beat_id = 1
-    beat_factor = 1
+    beat_pattern = args.beat_pattern
+    beat_time = 60.0 / args.bpm / 4
+    print("beat_time: %f\n" % beat_time)
 
     # start sound engine
     s = pyo.Server().boot()
     t = pyo.CosTable([(0,0), (100,1), (500,.3), (8191,0)])
-    beat = pyo.Beat(time=.100, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
+    beat = pyo.Beat(time=beat_time, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
     tr2 = pyo.TrigEnv(beat, table=t, dur=beat['dur'], mul=beat['amp'])
 
     lfo4 = pyo.Sine(0.1).range(0.1, 0.75)
-    osc4 = pyo.SuperSaw(freq=scale1[0].frequency(), detune=lfo4, mul=tr2*0.3).out(1)
+    osc4 = pyo.SuperSaw(freq=scale1[0].frequency(), detune=lfo4, mul=tr2).out(1)
     lfo5 = pyo.Sine(0.1888).range(0.1, 0.75)
-    osc5 = pyo.SuperSaw(freq=scale2[0].frequency(), detune=lfo5, mul=tr2*0.3).out(2)
+    osc5 = pyo.SuperSaw(freq=scale2[0].frequency(), detune=lfo5, mul=tr2).out(2)
     sf = pyo.SfPlayer("kick-02.wav", speed=1, loop=False, mul=0.5).out()
-    pat = pyo.Pattern(function=beat_event, time=0.1).play()
+    pat = pyo.Pattern(function=beat_event, time=beat_time).play()
 
     s.start()
 
@@ -72,7 +74,7 @@ def stop():
 def beat_event():
     global beat_id, beat_factor, sf
 
-    if add_beat and (beat_id % (16 / beat_factor)) == 1:
+    if add_beat and ((1 << (beat_id & 0xF)) & beat_pattern) != 0:
         sf.out()
     beat_id = beat_id + 1
 
