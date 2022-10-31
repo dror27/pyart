@@ -20,6 +20,10 @@ def multi_octave_scale(note, name, octaves):
 # start sound engine
 def start(args):
 
+    # save args need
+    global add_beat
+    add_beat = args.add_beat
+
     # some global setup
     global s, osc4, osc5, scale1, scale2, beat, beat_id, beat_factor, sf, pat
     global t, tr2, lfo4, lfo5
@@ -27,7 +31,6 @@ def start(args):
     scale2 = multi_octave_scale(musthe.Note('A3'), args.scale, 2)
     beat_id = 1
     beat_factor = 1
-
 
     # start sound engine
     s = pyo.Server().boot()
@@ -69,7 +72,7 @@ def stop():
 def beat_event():
     global beat_id, beat_factor, sf
 
-    if (beat_id % (16 / beat_factor)) == 1:
+    if add_beat and (beat_id % (16 / beat_factor)) == 1:
         sf.out()
     beat_id = beat_id + 1
 

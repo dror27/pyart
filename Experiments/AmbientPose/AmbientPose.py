@@ -16,6 +16,8 @@ parser.add_argument("--scale", help="name of scale to use, defaults to minor_pen
                     default="minor_pentatonic")
 parser.add_argument("--list-scales", help="list all available scales",
                     action="store_true")
+parser.add_argument("--add-beat", help="add a base drum beat",
+                    action="store_true")
 args = parser.parse_args()
 
 # print scales?
